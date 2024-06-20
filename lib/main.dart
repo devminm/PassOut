@@ -1,10 +1,4 @@
-import 'dart:ffi';
-
-import 'package:crypto/crypto.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:hd_wallet_kit/hd_wallet_kit.dart';
-import 'package:hd_wallet_kit/utils.dart';
 import 'package:passout/app_router.dart';
 
 void main() {
