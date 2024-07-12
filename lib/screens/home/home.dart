@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:passout/api/google/google_drive_api.dart';
 import 'package:passout/api/google/google_signin_api.dart';
+import 'package:passout/api/webrtc/signaling.dart';
 
 import '../../models/account.dart';
 import '../../widgets/account_card.dart';
@@ -20,10 +21,11 @@ class _HomeScreenState extends State<HomeScreen> {
   final GoogleSignInProvider _googleSignInProvider = GoogleSignInProvider();
   GoogleDriveService? _googleDriveService;
   List<Account>? _accounts;
-
+  late Signaling _signaling;
   @override
   void initState() {
     super.initState();
+    _signaling = Signaling();
     _currentUser = _googleSignInProvider.currentUser;
     if (_currentUser != null) {
       _googleDriveService = GoogleDriveService(_currentUser!);
@@ -43,6 +45,12 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("PassOut"),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+_signaling.sendEncryptedText('Hi from mobile');
+        },
+        child: const Icon(Icons.connect_without_contact_rounded),
       ),
       body: _currentUser != null
           ? _accounts != null
@@ -173,7 +181,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _accounts = [];
       for (var encryptedMetaData in encryptedListOfMetaData) {
         _accounts
-            ?.add(await Account.decryptMetaData(encryptedMetaData.toString()));
+            ?.add( Account.fromJson(await Account.decrypt(encryptedMetaData.toString())));
       }
       setState(() {});
     }

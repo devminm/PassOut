@@ -11,7 +11,7 @@ class Account {
   String? companyName;
   final String username;
   final int index;
-  final SecureStorageService _secStorage = SecureStorageService();
+  static final SecureStorageService _secStorage = SecureStorageService();
   Account(
       {required this.url,
       this.companyName,
@@ -38,7 +38,8 @@ class Account {
     );
   }
 
-  String toJson() {
+
+   String toJson() {
     return jsonEncode({
       'url': url,
       'username': username,
@@ -46,32 +47,40 @@ class Account {
     });
   }
 
-  Future<String> encryptMetaData({String? secSeed}) async {
+   Future<String> encryptMetaData({String? secSeed}) async {
+   return await encrypt(toJson(), secSeed: secSeed);
+  }
+
+  static Future<String> encrypt(String data, {String? secSeed}) async {
     try {
       final seed = secSeed ?? (await _secStorage.read(key: 'seed'))!;
-      final aes = AesGcm.with256bits();
-      final pbkdf2 =
-          Pbkdf2(macAlgorithm: Hmac.sha256(), iterations: 10000, bits: 256);
-      final nonce = aes.newNonce();
-      final secretKey =
-          await pbkdf2.deriveKeyFromPassword(password: seed, nonce: nonce);
-      final encrypted = await aes.encrypt(
-        utf8.encode(toJson()),
-        secretKey: secretKey,
-        nonce: nonce,
-      );
-      return base64Encode(encrypted.concatenation());
+    final aes = AesGcm.with256bits();
+    final pbkdf2 =
+    Pbkdf2(macAlgorithm: Hmac.sha256(), iterations: 10000, bits: 256);
+    final nonce = aes.newNonce();
+    final secretKey =
+    await pbkdf2.deriveKeyFromPassword(password: seed, nonce: nonce);
+    final encrypted = await aes.encrypt(
+    utf8.encode(data),
+    secretKey: secretKey,
+    nonce: nonce,
+    );
+    return base64Encode(encrypted.concatenation());
     } catch (e) {
-      rethrow;
+    rethrow;
     }
   }
 
-  static Future<Account> decryptMetaData(String encryptedMetaData) async {
+   Future<Account> decryptMetaData(String encryptedMetaData) async {
+      return Account.fromJson(await decrypt(encryptedMetaData));
+  }
+
+  static Future<String> decrypt(String encryptedMetaData, {String? secSeed}) async {
     try {
       final aes = AesGcm.with256bits();
       final secStorage = SecureStorageService();
       final pbkdf2 =
-          Pbkdf2(macAlgorithm: Hmac.sha256(), iterations: 10000, bits: 256);
+      Pbkdf2(macAlgorithm: Hmac.sha256(), iterations: 10000, bits: 256);
       final secretBox = SecretBox.fromConcatenation(
           base64Decode(encryptedMetaData),
           macLength: 16,
@@ -84,7 +93,7 @@ class Account {
         secretBox,
         secretKey: secretKey,
       );
-      return Account.fromJson(utf8.decode(decrypted));
+      return utf8.decode(decrypted);
     } catch (e) {
       rethrow;
     }
