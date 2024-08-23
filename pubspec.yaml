@@ -24,6 +24,9 @@ dependencies:
   permission_handler: ^11.3.1
   flutter_webrtc: ^0.11.2
   web_socket_channel: ^3.0.0
+  get_it: ^7.7.0
+  base85: ^1.0.4
+  qr_code_scanner: ^1.0.1
 
 dev_dependencies:
   flutter_test:

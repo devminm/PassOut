@@ -1,7 +1,15 @@
-import 'package:chrome_extension/api/webrtc/signaling.dart';
-import 'package:flutter/material.dart';
 
-void main() => runApp(const MyApp());
+import 'dart:convert';
+
+import 'package:chrome_extension/chrome.dart';
+import 'package:cryptography/cryptography.dart';
+import 'package:flutter/material.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import 'api/webrtc/extension_api.dart';
+
+void main() {
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -28,47 +36,63 @@ class MyHomePage extends StatefulWidget {
 
 class MyHomePageState extends State<MyHomePage> {
 
-  late Signaling _signaling;
-  final String message = "";
+  late ExtensionApi _extensionApi;
 
   @override
   void initState() {
     super.initState();
-    _signaling = Signaling();
+    _extensionApi = ExtensionApi();
   }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Flutter Demo Click Counter'),
+        title: const Text('Secure hash-based password manager'),
 
       ),
       body: Center(
-        child: Text(
-          'You have pushed the button this many times:',
+        child: FutureBuilder<String>(
+          future: getKey(),
+          builder: (context,message) {
+            print("kire khar ${message.data}");
+            if (message.connectionState == ConnectionState.waiting) {
+              return const CircularProgressIndicator();
+            }
+            _extensionApi.sendToBackground("KEY", data: message.data);
+            return Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: QrImageView(
+                data: message.data!,
+                size: 200.0,
+                padding: EdgeInsets.all(20),
+              ),
+            );
+          }
         ),
       ),
-      floatingActionButton: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          FloatingActionButton(
-            onPressed: (){
-              _signaling.sendText("Hi from extension");
-            },
-            tooltip: 'Increment',
-            child: const Icon(Icons.send_outlined),
-          ),
-
-          SizedBox(height: 20,),
-          FloatingActionButton(
-            onPressed: (){
-              _signaling.createOffer();
-            },
-            tooltip: 'Increment',
-            child: const Icon(Icons.add),
-          ),
-        ],
+      floatingActionButton: FloatingActionButton(
+        onPressed: (){
+          _extensionApi.createOffer();
+        },
+        child: ValueListenableBuilder<int>(
+          valueListenable: _extensionApi.connectionStatus,
+          builder: (context, value, child) {
+            return Icon(value == 1 ? Icons.done_outlined : Icons.connect_without_contact_outlined,
+            color : value == 1 ? Colors.green : Colors.red,);
+          },
+        )
       ),
     );
   }
+
+   Future<String> getKey() async {
+    var key = await chrome.storage.local.get(["aes_key"]);
+    if (key.containsKey("aes_key")) {
+      return key["aes_key"];
+    }
+    final algorithm = AesGcm.with256bits();
+    final secretKey = await algorithm.newSecretKey();
+    return base64Encode((await secretKey.extract()).bytes);
+  }
 }
+

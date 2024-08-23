@@ -10,7 +10,31 @@
     "prefer_related_applications": false,
     "version": "1.0.0",
     "content_security_policy": {
-        "extension_pages": "script-src 'self' ; object-src 'self'"
+        "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
+    },
+    "permissions": [
+        "activeTab",
+        "scripting",
+        "storage",
+        "tabs",
+        "notifications",
+        "webNavigation",
+        "webRequest",
+        "offscreen",
+        "webRequestBlocking"
+    ],
+    "host_permissions": [
+        "https://*/*",
+        "http://*/*"
+    ],
+    "content_scripts": [
+        {
+            "matches": ["<all_urls>"],
+            "js": ["content.js"]
+        }
+    ],
+    "background": {
+        "service_worker": "background.js"
     },
     "action": {
         "default_popup": "index.html",
