@@ -61,10 +61,17 @@ class MyHomePageState extends State<MyHomePage> {
             _extensionApi.sendToBackground("KEY", data: message.data);
             return Padding(
               padding: const EdgeInsets.all(8.0),
-              child: QrImageView(
-                data: message.data!,
-                size: 200.0,
-                padding: EdgeInsets.all(20),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  QrImageView(
+                    data: message.data!,
+                    size: 200.0,
+                    padding: EdgeInsets.all(20),
+                  ),
+                  const SizedBox(height: 20,),
+                  const Text("1. Scan the QR code with your mobile device\n2. Press the button to connect to the mobile app."),
+                ],
               ),
             );
           }

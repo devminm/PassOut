@@ -98,7 +98,7 @@ function showPopup(entries,field) {
   popupContainer.style.left = `${rect.left + window.scrollX}px`;
 
   // Create a list of entries
-  entries.forEach(entry => {
+  entries.forEach((entry,index) => {
     let entryDiv = document.createElement('div');
     entryDiv.style.marginBottom = '5px';
     entryDiv.style.cursor = 'pointer';
@@ -108,6 +108,12 @@ function showPopup(entries,field) {
       closePopup();
     };
     popupContainer.appendChild(entryDiv);
+     // Add an <hr> element after each entry except the last one
+        if (index < entries.length) {
+            let hr = document.createElement('hr');
+            hr.style.margin = '8px 0'; // Optional: Adjust margin for spacing
+            popupContainer.appendChild(hr);
+        }
   });
  const usernameField = document.querySelector(userFields);
         const emailField = document.querySelector(emailFields);
