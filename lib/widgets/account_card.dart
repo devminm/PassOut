@@ -35,30 +35,32 @@ class AccountCard extends StatelessWidget {
                   extractAssetUrl(account.subdomain),
                 ),
               Gap.horizontal(),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (account.companyName != null)
-                    Column(
-                      children: [
-                        Text(
-                          account.companyName!,
-                          style: theme.textTheme.bodyLarge,
-                        ),
-                        Gap.vertical(8),
-                      ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (account.companyName != null)
+                      Column(
+                        children: [
+                          Text(
+                            account.companyName!,
+                            style: theme.textTheme.bodyLarge,
+                          ),
+                          Gap.vertical(8),
+                        ],
+                      ),
+                    Text(
+                      "Username: ${account.username}",
+                      style: theme.textTheme.bodySmall,
                     ),
-                  Text(
-                    "Username: ${account.username}",
-                    style: theme.textTheme.bodySmall,
-                  ),
-                  Text(
-                    "Url: ${account.subdomain.replaceAll("https://", "")}",
-                    style: theme.textTheme.bodySmall,
-                  ),
-                ],
+                    Text(
+                      "Url: ${account.subdomain.replaceAll("https://", "")}",
+                      style: theme.textTheme.bodySmall,
+                    ),
+                  ],
+                ),
               ),
-              const Spacer(),
+              // const Spacer(),
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [

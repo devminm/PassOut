@@ -7,17 +7,21 @@ const emailFields = 'input[type="email"], input[name="email"], input[name="Email
 
 document.addEventListener('focusin', (event) => {
 console.log('content.js: focusin event');
-  if (event.target.name === 'password' || event.target.name === 'pass' || event.target.name === 'pwd' || event.target.name === 'passwd' || event.target.name === 'Passwd') {
+  if (event.target.type === 'password' || event.target.name === 'password' || event.target.name === 'pass' || event.target.name === 'pwd' || event.target.name === 'passwd' || event.target.name === 'Passwd') {
   detectAndAutofillForm();
   }
 });
 document.addEventListener('focusout', (event) => {
 console.log('content.js: focusout event');
-  if (event.target.name === 'Username' || event.target.name === 'username' || event.target.name === 'Email' || event.target.name === 'email' || event.target.type === 'email' || event.target.type === 'username' || event.target.name === 'user' || event.target.name === 'userid' || event.target.name === 'userId') {
-
+  if (event.target.name === 'Username' || event.target.name === 'username' || event.target.type === 'username' || event.target.name === 'user' || event.target.name === 'userid' || event.target.name === 'userId') {
     sessionData['username'] = event.target.value;
   console.log('content.js: sessionData: ', sessionData);
-  }
+  } else  if(event.target.name === 'Email' || event.target.name === 'email' || event.target.type === 'email'){
+  if  ( sessionData['username'] === undefined || sessionData['username'] === null || sessionData['username'] === ''){
+        sessionData['username'] = event.target.value;
+        console.log('content.js: sessionData: ', sessionData);
+    }
+    }
 });
 
 function detectAndAutofillForm() {
@@ -25,30 +29,35 @@ function detectAndAutofillForm() {
     for (let form of forms) {
       const action = form.action.toLowerCase();
       const formFields = Array.from(form.elements).map(el => el.name.toLowerCase());
-      if (isRegistrationForm(action, formFields, form.elements)) {
-          const usernameField = document.querySelector(userFields);
-          const emailField = document.querySelector(emailFields);
-                let username;
-                let email;
-            if (!usernameField && !emailField) {
-            if(!sessionData['username']){
-              alert('Email or username not found');
-              return;
-            }
-        }
-            username = sessionData['username'] || usernameField.value;
-            email = sessionData['username'] || sessionData['username'] || emailField.value;
-
-
-
-        chrome.runtime.sendMessage({target: "background", action: 'SEND_TO_DATA_CHANNEL_REGISTER', data: window.location.hostname, username: username}, (response) => {
-        console.log('content.js: sendMessage response: ', response);
-        });
-      } else if (isLoginForm(action, formFields)) {
+//      if (isRegistrationForm(action, formFields, form.elements)) {
+//          const usernameField = document.querySelector(userFields);
+//          const emailField = document.querySelector(emailFields);
+//                let username;
+//                let email;
+//            if (!usernameField && !emailField) {
+//            if(!sessionData['username']){
+//              alert('Email or username not found');
+//              return;
+//            }
+//        }
+//            username = sessionData['username'] || usernameField.value;
+//            if (username === undefined || username === null || username === ''){
+//             username = emailField.value;
+//            }
+//
+//
+//
+// chrome.runtime.sendMessage({target: "background", action: 'SEND_TO_DATA_CHANNEL_LOGIN', data: window.location.hostname }, (response) => {
+//        console.log('content.js: sendMessage response: ', response);
+//        });
+//        chrome.runtime.sendMessage({target: "background", action: 'SEND_TO_DATA_CHANNEL_REGISTER', data: window.location.hostname, username: username}, (response) => {
+ //       console.log('content.js: sendMessage response: ', response);
+ //       });
+//      } else if (isLoginForm(action, formFields)) {
         chrome.runtime.sendMessage({target: "background", action: 'SEND_TO_DATA_CHANNEL_LOGIN', data: window.location.hostname }, (response) => {
         console.log('content.js: sendMessage response: ', response);
         });
-      }
+//      }
     }
   }
 
@@ -58,7 +67,9 @@ console.log('content.js: onMessage event with request: ', request);
 if (request.action === 'AUTOFILL_LOGIN') {
     autofillLoginForm(request.data);
   } else if (request.action === 'AUTOFILL_REGISTER') {
-    autofillRegisterForm(request.data);
+  fillForm(request.data[0]);
+    //autofillRegisterForm(request.data);
+    //autofillLoginForm(request.data);
   }
   });
 
@@ -83,7 +94,7 @@ function showPopup(entries,field) {
 
   // Position the container near the username field
   const rect = field.getBoundingClientRect();
-  popupContainer.style.top = `${rect.top + window.scrollY + field.offsetHeight}px`;
+  popupContainer.style.top = `${rect.bottom + window.scrollY}px`;
   popupContainer.style.left = `${rect.left + window.scrollX}px`;
 
   // Create a list of entries
@@ -98,31 +109,27 @@ function showPopup(entries,field) {
     };
     popupContainer.appendChild(entryDiv);
   });
+ const usernameField = document.querySelector(userFields);
+        const emailField = document.querySelector(emailFields);
+                  let username = sessionData['username'];
+                        if (usernameField)  username = sessionData['username'] || usernameField.value;
+                           if (username === undefined || username === null || username === ''){
+                           if (emailField)  username = emailField.value;
+                           }
 
+if (username !== undefined && username !== null && username !== ''){
   let lastEntry = document.createElement('div');
     lastEntry.style.marginBottom = '5px';
     lastEntry.style.cursor = 'pointer';
-    lastEntry.textContent = `Create or Update Entry`;
+    lastEntry.textContent = `Create or Update Entry for ${username}`;
     lastEntry.onclick = () => {
-   const usernameField = document.querySelector(userFields);
-               const emailField = document.querySelector(emailFields);
-                 let username;
-                               let email;
-                           if (!usernameField && !emailField) {
-                           if(!sessionData['Username']){
-                             alert('Email or username not found');
-                             return;
-                           }
-                       }
-                           username = sessionData['username'] || usernameField.value;
-                           email = sessionData['username'] || sessionData['username'] || emailField.value;
-
            chrome.runtime.sendMessage({target: "background", action: 'SEND_TO_DATA_CHANNEL_REGISTER', data: window.location.hostname, username: username}, (response) => {
            console.log('content.js: sendMessage response: ', response);
            });
         closePopup();
     }
     popupContainer.appendChild(lastEntry);
+}
 
  // Add the container to the body if it's not already added
    if (!popupContainer.parentElement) {
@@ -185,9 +192,9 @@ function autofillLoginForm(entries) {
     console.error('Login fields not found');
     return;
   }
-    if(!usernameField || usernameField.offsetHeight === 0 && usernameField.getBoundingClientRect().top === 0 && usernameField.getBoundingClientRect().left === 0){
+    if (passwordField){
     showPopup(entries,passwordField);
-    }else{
+    }else if(usernameField){ // || usernameField.offsetHeight === 0 && usernameField.getBoundingClientRect().top === 0 && usernameField.getBoundingClientRect().left === 0
    showPopup(entries,usernameField);
    }
 }
@@ -202,8 +209,11 @@ function autofillRegisterForm(entries) {
     console.error('Registration fields not found');
     return;
   }
-
-   fillForm(entries[0]);
+if(!usernameField || usernameField.offsetHeight === 0 && usernameField.getBoundingClientRect().top === 0 && usernameField.getBoundingClientRect().left === 0){
+    showPopup(entries,passwordField);
+    }else{
+   showPopup(entries,usernameField);
+   }
 
   }
 
