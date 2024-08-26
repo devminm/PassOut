@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hd_wallet_kit/hd_wallet_kit.dart';
 import 'package:hd_wallet_kit/utils.dart';
 import 'package:passout/app_router.dart';
@@ -83,6 +84,9 @@ class _MnemonicScreenState extends State<MnemonicScreen> {
                       return Card(
                         child: Center(
                           child: TextField(
+                            inputFormatters: [
+                              FilteringTextInputFormatter.deny(RegExp(r'\s')),  // Disallow spaces
+                            ],
                             controller: textfieldControllers[index],
                             textAlign: TextAlign.center,
                             expands: false,
