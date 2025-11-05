@@ -45,37 +45,6 @@
 - Responsive Material Design UI
 - Dark/Light theme support
 
-## 🏗️ Architecture
-
-### Core Components
-
-1. **Account Model** (`lib/models/account.dart`)
-   - Hash-based password generation using SHA-512
-   - AES-256-GCM encryption for metadata
-   - PBKDF2 key derivation (HMAC-SHA256, 10K iterations)
-   - Base85 encoding for compact, strong passwords
-
-2. **Secure Storage** (`lib/helpers/secure_storage.dart`)
-   - Flutter Secure Storage for master seed
-   - Encrypted SharedPreferences on Android
-   - Keychain/Keystore integration
-
-3. **Google Drive API** (`lib/api/google/`)
-   - OAuth2 authentication
-   - Encrypted file upload/download
-   - Automatic file versioning
-
-4. **WebRTC Signaling** (`lib/api/webrtc/signaling.dart`)
-   - Peer-to-peer connection with browser extension
-   - AES-GCM encrypted data channel
-   - WebSocket signaling server integration
-
-5. **Chrome Extension** (`chrome_extension/web/`)
-   - Content script for form detection
-   - Background service worker for message routing
-   - Offscreen document for WebRTC connection
-   - Auto-fill and auto-update capabilities
-
 ## 🚀 Getting Started
 
 ### Prerequisites
@@ -83,7 +52,7 @@
 - Flutter SDK (>=3.0.3 <4.0.0)
 - Dart SDK
 - Android Studio / Xcode (for mobile development)
-- Chrome/Edge browser (for extension)
+- Chrome browser (for extension)
 
 ### Installation
 
@@ -223,16 +192,6 @@ PassOut implements **industry-leading cryptographic standards** that are among t
 - **WebSocket**: Signaling server connection
 - **QR Code Scanner**: Secure pairing mechanism
 - **Base85 Encoding**: Compact password representation
-
-## 📱 Supported Platforms
-
-- ✅ Android
-- ✅ iOS
-- ✅ Web
-- ✅ Windows
-- ✅ macOS
-- ✅ Linux
-- ✅ Chrome/Edge Extension
 
 ## 🗂️ Project Structure
 
